@@ -3,7 +3,7 @@
  * Oregon State EECS
  * Operating Systems
  * Program 4 (1/5)
- * File otp_enc_d.c
+ * File otp_dec_d.c
  * This is the decoding workhorse of the program.
  *************************************************/
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 		if(clientSockFD<0)error("ERROR on accpet",2);
 		if(fork()==0)
 		{ // I am the child
-			sendAuth(clientSockFD,"encAck"); // send one time auth code
+			auth(clientSockFD,"decAck"); // send one time auth code
 			serviceClient(clientSockFD);
 			exit(0);
 			close(clientSockFD);

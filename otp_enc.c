@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	int sockfd = sockSetup(atoi(argv[3]));
 
 	/* Authorize server by listening for one time code */
-	auth(sockfd,"encAck"); // exits if not correct server	
+	sendAuth(sockfd,"encAck"); // exits if not correct server	
 
 	/* Transmit key and ptext files */	
 	sendFile(pTextFP,sockfd);

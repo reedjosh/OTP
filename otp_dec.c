@@ -3,7 +3,7 @@
  * Oregon State EECS
  * Operating Systems
  * Program 4
- * File otp_enc
+ * File otp_dec
  * This reads a plaintext file and sends it to the 
  * respective daemon for encoding (via tcp sockets)
  *************************************************/
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	int sockfd = sockSetup(atoi(argv[3]));
 	
 	/* Authorize server by listening for one time code */
-	auth(sockfd,"decAck"); // exit if not correct server
+	sendAuth(sockfd,"decAck"); // exit if not correct server
 
 	/* Transmit key and ptext files */	
 	sendFile(cipherTextFP,sockfd);

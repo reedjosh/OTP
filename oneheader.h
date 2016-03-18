@@ -73,16 +73,57 @@ void auth(int sockFD, const char * authCode)
    	if (n < 0) error("ERROR reading from socket in daemon",2);
  	strcpy(badACK,buffer);
 
+  	//printf("auth() reading for %s received %s\n", authCode, badACK); 
+	//	fflush(stdout);
+
 	/* Transmission two, write "ack" */
 	bzero(buffer,256);	
 	strcpy(buffer,authCode);
    	n = write(sockFD,buffer,strlen(buffer));
    	if (n < 0) error("ERROR writing to socket in daemon",2);
+
+  	//printf("auth() writing %s and received %s\n", authCode, badACK); 
+	//	fflush(stdout);
 	
 	if(strcmp(badACK,authCode))
 	{
 		close(sockFD);
-		error("ERROR cannot find otp_dec_d",2);
+
+		//printf("auth() mismatch exiting\n");
+		//fflush(stdout);
+
+		error("ERROR cannot find server",2);
+	}
+}
+
+void sendAuth(int sockFD, const char * authCode)
+{
+	char buffer[256];
+	int n;
+	/* Transmit auth */
+	strcpy(buffer,authCode);
+    n = write(sockFD,buffer,strlen(buffer));
+    if(n < 0)error("ERROR writing to socket",2);
+
+  		//printf("sendAuth() writing %s\n", authCode); 
+	//	fflush(stdout);
+
+	/* Receive ack */
+	bzero(buffer,256);
+	n = read(sockFD,buffer,255);
+	if (n < 0)error("ERROR reading from socket",2);
+
+  		//printf("sendAuth() checking authCode %s vs received %s \n", authCode, buffer); 
+	//	fflush(stdout);
+
+	if(strcmp(buffer,authCode))
+	{
+		close(sockFD);
+
+  		//printf("sendAuth() mismatch; wanted %s received %s exiting\n", authCode, buffer); 
+	//	fflush(stdout);
+
+		error("ERROR bad auth client",2);
 	}
 }
 
@@ -144,11 +185,10 @@ int sendFile(FILE * fp, int sockFD)
 		bzero(buffer,256);
 		n = read(sockFD,buffer,255);
 		if (n < 0)error("ERROR reading from socket",2);
-    
-		bzero(buffer,256);
 	}
 	
 	/* Transmit exit */
+	bzero(buffer,256);
 	strcpy(buffer,"exit");
     n = write(sockFD,buffer,strlen(buffer));
     if(n < 0)error("ERROR writing to socket",2);
@@ -205,7 +245,7 @@ int checkContents(FILE * fp) // checks file content for proper data, returns 1 i
 int sendString(char str[], int sockFD)
 {
 	FILE * fp;
-	fp = fmemopen(str,strlen(str),"r");
+	fp = fmemopen(str,strlen(str)+1,"r");
 	int n;
 	char buffer[256];
 	/* Transmission of files */
@@ -276,7 +316,7 @@ void codeString(char pText[],char keyText[], char cText[])
 	do{
 	i+=1;
 	if(pText[i]!='\0' && pText[i]!='\n')cText[i]=codeChar(pText[i],keyText[i]);
-	else cText[i-1] = '\0';
+	else cText[i] = '\0';
 	}while(pText[i]!='\0');
 }
 
@@ -290,7 +330,7 @@ void decodeString(char pText[],char keyText[], char cText[])
 	}while(cText[i]!='\0');
 }
 
-int servSockSetup(int portno)
+int servSockSetup(portno)
 {
 	int sockfd;
     struct sockaddr_in serv_addr;
@@ -306,22 +346,3 @@ int servSockSetup(int portno)
 }
 
 
-void sendAuth(int sockFD, const char * authCode)
-{
-	char buffer[256];
-	int n;
-	/* Transmit auth */
-	strcpy(buffer,authCode);
-    n = write(sockFD,buffer,strlen(buffer));
-    if(n < 0)error("ERROR writing to socket",2);
-   
-	/* Receive ack */
-	bzero(buffer,256);
-	n = read(sockFD,buffer,255);
-	if (n < 0)error("ERROR reading from socket",2);
-	if(strcmp(buffer,"authCode"))
-	{
-		close(sockFD);
-		error("ERROR bad auth client",2);
-	}
-}

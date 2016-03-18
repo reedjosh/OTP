@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     	if (clientSockFD<0)error("ERROR on accept",2);
 		if(fork()==0)
 		{ // I am the child			
-			sendAuth(clientSockFD,"encAuth"); // send one time auth code
+			auth(clientSockFD,"encAck"); // send one time auth code
 			serviceClient(clientSockFD);
 			exit(0);
 			close(clientSockFD);
@@ -53,7 +53,10 @@ int serviceClient(int sockFD)
 	
 	receive(pText,sockFD);
 	receive(keyText,sockFD);
+	//printf("pText at serviceClient %s\n", pText);
+	//printf("keyText at serviceClient %s\n", keyText);
 	codeString(pText,keyText,cipherText);
+	//printf("cipherText at serviceClient %s\n", cipherText);
 	sendString(cipherText,sockFD);	
 	return (0);
 }
