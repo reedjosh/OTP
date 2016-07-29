@@ -2,4 +2,4 @@ simply enter...
 
 make
 
-./p4gradingscript
+env PATH=$PATH:. p4gradingscript 5100 5200
