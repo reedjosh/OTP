@@ -1,5 +1,0 @@
-simply enter
-	chmod u+x compileall
-	PATH=$PATH:.
-	compileall
-	p4gradingscript
